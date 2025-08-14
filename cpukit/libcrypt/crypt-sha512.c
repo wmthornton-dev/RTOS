@@ -29,6 +29,12 @@
  * SHA512-based Unix crypt implementation. Released into the Public Domain by
  * Ulrich Drepper <drepper@redhat.com>. */
 
+ /* 08/14/2025 
+ *	Wayne Michael Thornton (WMT) <wmthornton-dev@outlook.com>
+ *   - Updated memset function to explicit_bzero to securely erase memory after
+ *     crytographic operations.
+ */
+
 #include <sys/cdefs.h>
 __FBSDID("$FreeBSD$");
 
@@ -266,9 +272,9 @@ crypt_sha512_r(const char *key, const char *salt, struct crypt_data *data)
 	 * the SHA512 implementation as well. */
 	SHA512_Init(&ctx);
 	SHA512_Final(alt_result, &ctx);
-	memset(temp_result, '\0', sizeof(temp_result));
-	memset(p_bytes, '\0', key_len);
-	memset(s_bytes, '\0', salt_len);
+	explicit_bzero(temp_result, sizeof(temp_result));
+	explicit_bzero(p_bytes, key_len);
+	explicit_bzero(s_bytes, salt_len);
 
 	return buffer;
 }
