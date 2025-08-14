@@ -28,11 +28,27 @@
  *
  */
 
+/* 08/19/2025 
+ *	Wayne Michael Thornton (WMT) <wmthornton-dev@outlook.com>
+ *   - Introduced dirty hack to provide the C11 memset_s function
+ *     which is missing from the RTEMS C11 compiler but which
+ *     is used in the libcrypt functions to securely erase
+ *     sensitive data after use. 
+ */
+
+ /* 08/22/2025 
+ *	Wayne Michael Thornton (WMT) <wmthornton-dev@outlook.com>
+ *   - Added support for SHA-3 hashing algorithm.
+ */
+
 #ifndef _CRYPT_H
 #define _CRYPT_H
 
 #include <sys/types.h>
 #include <sys/queue.h>
+
+#include <stdint.h> // for uint64_t, uint8_t
+#include <string.h>
 
 __BEGIN_DECLS
 
@@ -54,6 +70,8 @@ extern struct crypt_format crypt_sha256_format;
 
 extern struct crypt_format crypt_sha512_format;
 
+extern struct crypt_format crypt_sha3_512_format;
+
 void crypt_add_format(struct crypt_format *);
 
 char *crypt_r(const char *, const char *, struct crypt_data *);
@@ -64,7 +82,41 @@ char *crypt_sha256_r(const char *, const char *, struct crypt_data *);
 
 char *crypt_sha512_r(const char *, const char *, struct crypt_data *);
 
-void _crypt_to64(char *s, u_long v, int n);
+char *crypt_sha3_512_r(const char *, const char *, struct crypt_data *);
+
+/* SHA-3 sponge context and function prototypes */
+typedef struct {
+	uint64_t state[25];
+	unsigned int rate;
+	unsigned int capacity;
+	unsigned int pos;
+} sha3_ctx_t;
+
+void sha3_init(sha3_ctx_t *ctx);
+void sha3_update(sha3_ctx_t *ctx, const void *data, size_t len);
+void sha3_final(sha3_ctx_t *ctx, uint8_t *out, size_t outlen);
+
+void _crypt_to64(char *s, unsigned long v, int n);
+
+/* Dirty hack to re-introduce the C11 memset_s function
+*  which is missing from the RTEMS C11 compiler but which
+*  is used in the libcrypt functions to securely erase
+*  sensitive data after use. 
+*/
+static inline void memset_s_rtems(void *s, size_t n) {
+	volatile unsigned char *p = (volatile unsigned char *)s;
+	while (n--) {
+		*p++ = 0;
+	}
+}
+
+static inline void explicit_bzero_rtems (void *s, size_t len)
+{
+  memset (s, '\0', len);
+  /* Prevent compiler optimizations that could remove the memory clearing operation */
+  asm volatile ("" ::: "memory");
+}
+
 
 #define b64_from_24bit _crypt_b64_from_24bit
 void _crypt_b64_from_24bit(uint8_t, uint8_t, uint8_t, int, int *, char **);

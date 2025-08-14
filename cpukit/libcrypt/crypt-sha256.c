@@ -29,8 +29,20 @@
  * SHA256-based Unix crypt implementation. Released into the Public Domain by
  * Ulrich Drepper <drepper@redhat.com>. */
 
+ /* 08/14/2025 
+ *	Wayne Michael Thornton (WMT) <wmthornton-dev@outlook.com>
+ *   - Updated memset function to explicit_bzero to securely erase memory after
+ *     crytographic operations.
+ */
+
+/* 08/19/2025 
+ *	Wayne Michael Thornton (WMT) <wmthornton-dev@outlook.com>
+ *   - Introduced compiler flags to detect which C standard is being used
+ *     and use the appropriate secure memory clearing function.
+ * 	 - Removed __FBSDID as it is not used in RTEMS.
+ */
+
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD$");
 
 #include <sys/endian.h>
 #include <sys/param.h>
@@ -252,11 +264,28 @@ crypt_sha256_r(const char *key, const char *salt, struct crypt_data *data)
 	 * attaching to processes or reading core dumps cannot get any
 	 * information. We do it in this way to clear correct_words[] inside
 	 * the SHA256 implementation as well. */
+	#if __STDC_VERSION__ >= 202000L
+	/* C2X or newer */
 	SHA256_Init(&ctx);
 	SHA256_Final(alt_result, &ctx);
-	memset(temp_result, '\0', sizeof(temp_result));
-	memset(p_bytes, '\0', key_len);
-	memset(s_bytes, '\0', salt_len);
+	memset_explicit(temp_result, '\0', sizeof(temp_result));
+	memset_explicit(p_bytes, '\0', key_len);
+	memset_explicit(s_bytes, '\0', salt_len);
+	#elif __STDC_VERSION__ >= 201112L
+	/* C11 or newer */
+	SHA256_Init(&ctx);
+	SHA256_Final(alt_result, &ctx);
+	memset_s_rtems(temp_result, sizeof(temp_result));
+	memset_s_rtems(p_bytes, key_len);
+	memset_s_rtems(s_bytes, salt_len);
+	#elif __STDC_VERSION__ >= 199901L
+	/* C99 or newer */
+	SHA256_Init(&ctx);
+	SHA256_Final(alt_result, &ctx);
+	explicit_bzero(temp_result, sizeof(temp_result));
+	explicit_bzero(p_bytes, key_len);
+	explicit_bzero(s_bytes, salt_len);
+	#endif
 
 	return buffer;
 }

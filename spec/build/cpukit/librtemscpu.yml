@@ -602,6 +602,7 @@ source:
 - cpukit/libcrypt/crypt-sha512.c
 - cpukit/libcrypt/crypt.c
 - cpukit/libcrypt/misc.c
+- cpukit/libcrypt/crypt-sha3-512.c
 - cpukit/libcsupport/src/__assert.c
 - cpukit/libcsupport/src/__getpid.c
 - cpukit/libcsupport/src/__gettod.c
