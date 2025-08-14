@@ -20,6 +20,9 @@
  *     is closed. Rather let 'read()' return a 0 count so
  *     they may cleanup. Some magic hack works around termios
  *     limitation.
+ * 
+ *  Wayne Michael Thornton (WMT) <wmthornton-dev@outlook.com>
+ *   - amend comments for grammar/spelling and clarity.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -139,8 +142,8 @@ void rtems_pty_set_socket(rtems_pty_context *pty, int socket)
 
 /*-----------------------------------------------------------*/
 /*
- * The NVT terminal is negociated in PollRead and PollWrite
- * with every BYTE sendded or received.
+ * The NVT terminal is negotiated in PollRead and PollWrite
+ * with every BYTE sent or received.
  * A litle status machine in the pty_read_byte(int minor)
  *
  */
