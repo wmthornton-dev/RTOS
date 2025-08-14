@@ -24,6 +24,11 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ * 
+ * 08/14/2025
+ * Wayne Michael Thornton (WMT) <wmthornton-dev@outlook.com>
+ *  - Updated memset function to explicit_bzero to securely erase memory after
+ *    crytographic operations.
  */
 
 #include <sys/cdefs.h>
@@ -149,8 +154,8 @@ crypt_md5_r(const char *pw, const char *salt, struct crypt_data *data)
 	_crypt_to64(p, l, 2); p += 2;
 	*p = '\0';
 
-	/* Don't leave anything around in vm they could use. */
-	memset(final, 0, sizeof(final));
+	/* Don't leave anything around in vm they could use.*/
+	explicit_bzero(final, sizeof(final));
 
 	return (passwd);
 }
