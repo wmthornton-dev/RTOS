@@ -31,8 +31,14 @@
  *    crytographic operations.
  */
 
+/* 08/19/2025 
+ *	Wayne Michael Thornton (WMT) <wmthornton-dev@outlook.com>
+ *   - Introduced compiler flags to detect which C standard is being used
+ *     and use the appropriate secure memory clearing function.
+ * 	 - Removed __FBSDID as it is not used in RTEMS.
+ */
+
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD$");
 
 #include <sys/types.h>
 
@@ -97,7 +103,16 @@ crypt_md5_r(const char *pw, const char *salt, struct crypt_data *data)
 		    (u_int)(pl > MD5_SIZE ? MD5_SIZE : pl));
 
 	/* Don't leave anything around in vm they could use. */
+	#if __STDC_VERSION__ >= 202000L
+	/* C2X or newer */
+	memset_explicit(final, '\0', sizeof(final));
+	#elif __STDC_VERSION__ >= 201112L
+	/* C11 or newer */
+	memset_s_rtems(final, sizeof(final));
+	#elif __STDC_VERSION__ >= 199901L
+	/* C99 or newer */
 	explicit_bzero(final, sizeof(final));
+	#endif
 
 	/* Then something really weird... */
 	for (i = strlen(pw); i; i >>= 1)
@@ -155,7 +170,16 @@ crypt_md5_r(const char *pw, const char *salt, struct crypt_data *data)
 	*p = '\0';
 
 	/* Don't leave anything around in vm they could use.*/
+	#if __STDC_VERSION__ >= 202000L
+	/* C2X or newer */
+	memset_explicit(final, '\0', sizeof(final));
+	#elif __STDC_VERSION__ >= 201112L
+	/* C11 or newer */
+	memset_s_rtems(final, sizeof(final));
+	#elif __STDC_VERSION__ >= 199901L
+	/* C99 or newer */
 	explicit_bzero(final, sizeof(final));
+	#endif
 
 	return (passwd);
 }

@@ -28,6 +28,14 @@
  *
  */
 
+/* 08/19/2025 
+ *	Wayne Michael Thornton (WMT) <wmthornton-dev@outlook.com>
+ *   - Introduced dirty hack to provide the C11 memset_s function
+ *     which is missing from the RTEMS C11 compiler but which
+ *     is used in the libcrypt functions to securely erase
+ *     sensitive data after use. 
+ */
+
 #ifndef _CRYPT_H
 #define _CRYPT_H
 
@@ -65,6 +73,18 @@ char *crypt_sha256_r(const char *, const char *, struct crypt_data *);
 char *crypt_sha512_r(const char *, const char *, struct crypt_data *);
 
 void _crypt_to64(char *s, u_long v, int n);
+
+/* Dirty hack to re-introduce the C11 memset_s function
+*  which is missing from the RTEMS C11 compiler but which
+*  is used in the libcrypt functions to securely erase
+*  sensitive data after use. 
+*/
+static inline void memset_s_rtems(void *s, size_t n) {
+	volatile unsigned char *p = (volatile unsigned char *)s;
+	while (n--) {
+		*p++ = 0;
+	}
+}
 
 #define b64_from_24bit _crypt_b64_from_24bit
 void _crypt_b64_from_24bit(uint8_t, uint8_t, uint8_t, int, int *, char **);
