@@ -111,7 +111,7 @@ crypt_md5_r(const char *pw, const char *salt, struct crypt_data *data)
 	memset_s_rtems(final, sizeof(final));
 	#elif __STDC_VERSION__ >= 199901L
 	/* C99 or newer */
-	explicit_bzero(final, sizeof(final));
+	explicit_bzero_rtems(final, sizeof(final));
 	#endif
 
 	/* Then something really weird... */
@@ -178,7 +178,7 @@ crypt_md5_r(const char *pw, const char *salt, struct crypt_data *data)
 	memset_s_rtems(final, sizeof(final));
 	#elif __STDC_VERSION__ >= 199901L
 	/* C99 or newer */
-	explicit_bzero(final, sizeof(final));
+	explicit_bzero_rtems(final, sizeof(final));
 	#endif
 
 	return (passwd);

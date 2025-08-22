@@ -23,6 +23,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+ /* 08/22/2025 
+ *	Wayne Michael Thornton (WMT) <wmthornton-dev@outlook.com>
+ *   - Added structs and stubs to support SHA-3 hashing algorithm.
+ */
+
 #include <crypt.h>
 #include <string.h>
 
@@ -43,6 +48,13 @@ static struct crypt_format cf_default =
 static SLIST_HEAD(, crypt_format) cf_head = {
 	&cf_default
 };
+
+extern struct crypt_format crypt_sha3_512_format;
+
+__attribute__((constructor))
+static void register_sha3_512_format(void) {
+	crypt_add_format(&crypt_sha3_512_format);
+}
 
 void crypt_add_format(struct crypt_format *cf)
 {

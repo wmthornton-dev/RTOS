@@ -35,7 +35,7 @@
  *     crytographic operations.
  */
 
-   /* 08/19/2025 
+/* 08/19/2025 
  *	Wayne Michael Thornton (WMT) <wmthornton-dev@outlook.com>
  *   - Introduced compiler flags to detect which C standard is being used
  *     and use the appropriate secure memory clearing function.
@@ -294,9 +294,9 @@ crypt_sha512_r(const char *key, const char *salt, struct crypt_data *data)
 	/* C99 or newer */
 	SHA512_Init(&ctx);
 	SHA512_Final(alt_result, &ctx);
-	explicit_bzero(temp_result, sizeof(temp_result));
-	explicit_bzero(p_bytes, key_len);
-	explicit_bzero(s_bytes, salt_len);
+	explicit_bzero_rtems(temp_result, sizeof(temp_result));
+	explicit_bzero_rtems(p_bytes, key_len);
+	explicit_bzero_rtems(s_bytes, salt_len);
 	#endif
 
 	return buffer;
