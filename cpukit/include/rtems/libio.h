@@ -1652,6 +1652,7 @@ extern int rtems_mkdir(const char *path, mode_t mode);
 #define RTEMS_FILESYSTEM_TYPE_FATFS "fatfs"
 #define RTEMS_FILESYSTEM_TYPE_RFS "rfs"
 #define RTEMS_FILESYSTEM_TYPE_JFFS2 "jffs2"
+#define RTEMS_FILESYSTEM_TYPE_EEFS "eefs"
 
 /** @} */
 
@@ -1780,6 +1781,7 @@ int unmount(
  * To mount a standard file system instance one of the following defines should
  * be used to select the file system type
  * - RTEMS_FILESYSTEM_TYPE_DOSFS,
+ * - RTEMS_FILESYSTEM_TYPE_EEFS;
  * - RTEMS_FILESYSTEM_TYPE_FTPFS,
  * - RTEMS_FILESYSTEM_TYPE_IMFS,
  * - RTEMS_FILESYSTEM_TYPE_JFFS2,
@@ -1791,6 +1793,7 @@ int unmount(
  * file system types to your application configuration with the following
  * configuration options
  * - CONFIGURE_FILESYSTEM_DOSFS,
+ * - CONFIGURE_FILESYSTEM_EEFS,
  * - CONFIGURE_FILESYSTEM_FTPFS,
  * - CONFIGURE_FILESYSTEM_IMFS,
  * - CONFIGURE_FILESYSTEM_JFFS2,

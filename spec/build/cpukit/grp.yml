@@ -36,6 +36,8 @@ links:
   uid: libtftpfs
 - role: build-dependency
   uid: libz
+- role: build-dependency
+  uid: libeefs
 type: build
 use-after: []
 use-before: []
