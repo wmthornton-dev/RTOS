@@ -36,6 +36,10 @@ links:
   uid: libtftpfs
 - role: build-dependency
   uid: libz
+- role: build-dependency
+  uid: optageverify
+- role: build-dependency
+  uid: objageverify
 type: build
 use-after: []
 use-before: []

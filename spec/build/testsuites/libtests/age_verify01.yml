@@ -1,0 +1,20 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+build-type: test-program
+cflags: []
+copyrights:
+- Copyright (C) 2026 Wayne Michael Thornton (WMT) <wmthornton-dev@outlook.com>
+cppflags: []
+cxxflags: []
+enabled-by: OPT_AGE_VERIFICATION
+features: c cprogram
+includes: []
+ldflags: []
+links: []
+source:
+- testsuites/libtests/age_verify01/init.c
+stlib: []
+target: testsuites/libtests/age_verify01.exe
+type: build
+use: []
+use-after: []
+use-before: []

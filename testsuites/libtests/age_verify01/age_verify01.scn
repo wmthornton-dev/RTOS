@@ -1,0 +1,28 @@
+ SIS - SPARC/RISCV instruction simulator 2.30,  copyright Jiri Gaisler 2020
+ Bug-reports to jiri@gaisler.se
+
+ ERC32 emulation enabled
+
+ Loaded build/sparc/erc32/testsuites/libtests/age_verify01.exe, entry 0x02000000
+
+
+*** BEGIN OF TEST AGE_VERIFY01 ***
+1. Testing out-of-bounds bracket input...
+   PASS: Invalid bracket correctly rejected.
+2. Testing valid bracket assignment (AGE_16_TO_17)...
+   PASS: Valid bracket successfully set.
+3. Testing API lock mechanism...
+   PASS: API correctly locked after initial configuration.
+4. Testing signal retrieval and memory read...
+   PASS: Retrieved correct bracket signal (2).
+   PASS: Canary guards are intact.
+*** END OF TEST AGE_VERIFY01 ***
+
+
+[ RTEMS shutdown ]
+RTEMS version: 7.0.0.6bcdf60a8b86d3616eae8f89412b7e7d3cba589a-modified
+RTEMS tools: 15.2.0 20250808 (RTEMS 7, RSB fcedea2455bfea03ee00e7b6bc8d64395d25b59b, Newlib a7c61498)
+executing thread ID: 0x0a010001
+executing thread name: UI1
+cpu 0 in error mode (tt = 0x101)
+    77332  02006220:  91d02000   ta  0x0

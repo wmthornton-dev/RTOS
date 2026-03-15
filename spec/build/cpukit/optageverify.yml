@@ -1,0 +1,16 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+actions:
+- get-boolean: null
+- env-enable: null
+build-type: option
+copyrights:
+- Copyright (C) 2026 Wayne Michael Thornton (WMT) <wmthornton-dev@outlook.com>
+default:
+- enabled-by: true
+  value: false
+description: |
+  Enable the protected Age Verification API to comply with legal requirements.
+enabled-by: true
+links: []
+name: OPT_AGE_VERIFICATION
+type: build

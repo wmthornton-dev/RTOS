@@ -552,6 +552,10 @@ links:
   uid: objutf8
 - role: build-dependency
   uid: vckey
+- role: build-dependency
+  uid: optageverify
+- role: build-dependency
+  uid: objageverify
 source:
 - contrib/cpukit/uuid/clear.c
 - contrib/cpukit/uuid/compare.c

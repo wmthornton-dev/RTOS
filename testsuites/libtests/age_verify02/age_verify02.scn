@@ -1,0 +1,29 @@
+ SIS - SPARC/RISCV instruction simulator 2.30,  copyright Jiri Gaisler 2020
+ Bug-reports to jiri@gaisler.se
+
+ ERC32 emulation enabled
+
+ Loaded build/sparc/erc32/testsuites/libtests/age_verify02.exe, entry 0x02000000
+
+
+*** BEGIN OF TEST AGE_VERIFY02 ***
+Interactive Age Verification Provisioning
+
+Simulating Date of Birth input for automated testing...
+Mock Input Provided: 06/15/2009
+Date of birth securely processed and bracket locked.
+
+Retrieving statutory age signal for 3rd-party application...
+SIGNAL RECEIVED: AGE_16_TO_17
+-> Action: Minor protections apply. Binding EULAs disabled.
+
+*** END OF TEST AGE_VERIFY02 ***
+
+
+[ RTEMS shutdown ]
+RTEMS version: 7.0.0.6bcdf60a8b86d3616eae8f89412b7e7d3cba589a-modified
+RTEMS tools: 15.2.0 20250808 (RTEMS 7, RSB fcedea2455bfea03ee00e7b6bc8d64395d25b59b, Newlib a7c61498)
+executing thread ID: 0x0a010001
+executing thread name: UI1
+cpu 0 in error mode (tt = 0x101)
+    93605  02005ba0:  91d02000   ta  0x0

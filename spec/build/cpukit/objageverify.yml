@@ -1,0 +1,19 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+build-type: objects
+cflags: []
+copyrights:
+- Copyright (C) 2026 Wayne Michael Thornton (WMT) <wmthornton-dev@outlook.com>
+cppflags: []
+cxxflags: []
+enabled-by: OPT_AGE_VERIFICATION
+includes: []
+install:
+- destination: ${PREFIX}/include/rtems
+  source:
+  - cpukit/include/rtems/age_verify.h
+links: []
+source:
+- cpukit/libage/age_verify.c
+type: build
+use-after: []
+use-before: []

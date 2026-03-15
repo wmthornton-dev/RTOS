@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: BSD-2-Clause
+
+# Copyright (C) 2026 Wayne Michael Thornton (WMT) <wmthornton-dev@outlook.com>
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+
+This file describes the directives and concepts tested by this test set.
+
+test set name: age_verify02
+
+directives:
+
+  rtems_age_set_bracket
+  rtems_age_get_signal
+
+concepts:
+
++ Test parsing of string-based Date of Birth (DOB) input for headless CI automation.
++ Test age calculation logic against a fixed reference date to map to statutory age brackets (e.g., AB-1043).
++ Test secure provisioning of the calculated bracket into the operating system.
++ Test stack memory zeroing of sensitive intermediate DOB data to prevent local memory leakage.
++ Test retrieval and accurate translation of the statutory signal for third-party application consumption.
