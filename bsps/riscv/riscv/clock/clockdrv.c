@@ -38,6 +38,7 @@
 #include <bsp/fdt.h>
 #include <bsp/irq.h>
 #include <bsp/riscv.h>
+#include <bsp/riscv-fdt.h>
 
 #include <rtems/sysinit.h>
 #include <rtems/timecounter.h>
@@ -47,6 +48,12 @@
 #include <rtems/score/smpimpl.h>
 
 #include <libfdt.h>
+
+#ifdef RISCV_USE_S_MODE
+#include <machine/sbi.h>
+
+static bool riscv_has_sstc;
+#endif
 
 typedef struct {
   struct timecounter base;
@@ -104,21 +111,6 @@ static uint64_t riscv_clock_read_mtime(volatile RISCV_CLINT_timer_reg *mtime)
 }
 #endif /* !RISCV_USE_S_MODE */
 
-static void riscv_clock_at_tick(riscv_timecounter *tc)
-{
-  uint64_t value;
-
-#ifdef RISCV_USE_S_MODE
-  value = read_csr(stimecmp);
-  value += tc->interval;
-  write_csr(stimecmp, value);
-#else
-  value = riscv_clock_read_mtimecmp();
-  value += tc->interval;
-  riscv_clock_write_mtimecmp(value);
-#endif
-}
-
 static void riscv_clock_handler_install(rtems_interrupt_handler handler)
 {
   rtems_status_code sc;
@@ -150,27 +142,6 @@ static uint32_t riscv_clock_get_timecount(struct timecounter *base)
   return timecount;
 }
 
-static uint32_t riscv_clock_get_timebase_frequency(const void *fdt)
-{
-  int node;
-  const fdt32_t *val;
-  int len=0;
-
-  node = fdt_path_offset(fdt, "/cpus");
-
-  val = (fdt32_t *) fdt_getprop(fdt, node, "timebase-frequency", &len);
-
-  if (val == NULL || len < 4) {
-    int cpu0 = fdt_subnode_offset(fdt, node, "cpu@0");
-    val = (fdt32_t *) fdt_getprop(fdt, cpu0, "timebase-frequency", &len);
-
-    if (val == NULL || len < 4) {
-      bsp_fatal(RISCV_FATAL_NO_TIMEBASE_FREQUENCY_IN_DEVICE_TREE);
-    }
-  }
-  return fdt32_to_cpu(*val);
-}
-
 static uint64_t riscv_clock_read_timer(riscv_timecounter *tc)
 {
   uint64_t now;
@@ -189,10 +160,35 @@ static uint64_t riscv_clock_read_timer(riscv_timecounter *tc)
 static void riscv_clock_local_set_timer(uint64_t cmpval)
 {
 #ifdef RISCV_USE_S_MODE
-  write_csr(stimecmp, cmpval);
+  Per_CPU_Control *cpu_self = _Per_CPU_Get();
+  if (riscv_has_sstc) {
+#if __riscv_xlen == 32
+    write_csr(stimecmp, (uint32_t) cmpval);
+    write_csr(stimecmph, (uint32_t) (cmpval >> 32));
+#else
+    write_csr(stimecmp, cmpval);
+#endif
+  } else {
+    sbi_set_timer(cmpval);
+  }
+  cpu_self->cpu_per_cpu.cmpval = cmpval;
 #else
   riscv_clock_write_mtimecmp(cmpval);
 #endif
+}
+
+static void riscv_clock_at_tick(riscv_timecounter *tc)
+{
+  uint64_t value;
+
+#ifdef RISCV_USE_S_MODE
+  Per_CPU_Control *cpu_self = _Per_CPU_Get();
+  value = cpu_self->cpu_per_cpu.cmpval;
+#else
+  value = riscv_clock_read_mtimecmp();
+#endif
+  value += tc->interval;
+  riscv_clock_local_set_timer(value);
 }
 
 static void riscv_clock_local_enable_isr()
@@ -222,14 +218,10 @@ static void riscv_clock_secondary_init(
   uint64_t cmpval
 )
 {
+  (void) tc;
 #if defined(RTEMS_SMP) && !defined(CLOCK_DRIVER_USE_ONLY_BOOT_PROCESSOR)
   _SMP_Othercast_action(riscv_clock_secondary_action, &cmpval);
-
-  if (cmpval - riscv_clock_read_timer(tc) >= tc->interval) {
-    bsp_fatal(RISCV_FATAL_CLOCK_SMP_INIT);
-  }
 #else
-  (void) tc;
   (void) cmpval;
 #endif
 }
@@ -249,6 +241,10 @@ static void riscv_clock_initialize(void)
   interval = (uint32_t) ((tb_freq * us_per_tick) / 1000000);
   tc = &riscv_clock_tc;
   tc->interval = interval;
+
+#ifdef RISCV_USE_S_MODE
+  riscv_has_sstc = riscv_has_isa_extension(fdt, "sstc");
+#endif
 
   cmpval = riscv_clock_read_timer(tc);
   cmpval += interval;

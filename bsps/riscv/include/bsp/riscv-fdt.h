@@ -3,14 +3,15 @@
 /**
  * @file
  *
- * @ingroup RTEMSBSPsARMSTM32F4
+ * @ingroup RTEMSBSPsRISCVShared
  *
- * @brief This header file includes the generic tm27 support implementation.
+ * @brief This header file provides interfaces for probing the RISC-V ISA
+ * extensions.
  */
 
 /*
- * Copyright (C) 2017 embedded brains GmbH & Co. KG
- *
+ * Copyright (C) 2026 Gedare Bloom
+ * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -33,11 +34,36 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LIBBSP_ARM_STM32F4_TM27_H
-#define LIBBSP_ARM_STM32F4_TM27_H
+#ifndef _BSP_RISCV_FDT_H
+#define _BSP_RISCV_FDT_H
 
+#include <rtems/score/cpu.h>
 
-#include <rtems/tm27-default.h>
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
+/**
+ * @brief Finds the end of memory from the @a fdt properties.
+ *
+ * @return Returns the last valid address of memory.
+ */
+void *riscv_fdt_get_end_of_memory(const void *fdt);
 
-#endif /* LIBBSP_ARM_STM32F4_TM27_H */
+/**
+ * @brief Finds the timebase frequency from the @a fdt properties.
+ *
+ * @return Returns the timebase frequency.
+ */
+uint32_t riscv_clock_get_timebase_frequency(const void *fdt);
+
+/**
+ * @brief Searches for the ISA @a extension within the @a fdt.
+ */
+bool riscv_has_isa_extension(const void *fdt, const char *extension);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* _BSP_RISCV_FDT_H */

@@ -36,6 +36,7 @@
 
 #include <bsp.h>
 #include <bsp/fdt.h>
+#include <bsp/riscv-fdt.h>
 
 #include <rtems/sysinit.h>
 
@@ -49,79 +50,13 @@ extern char RamEnd[];
 
 static Memory_Area _Memory_Areas[ 1 ];
 
-static const char memory_path[] = "/memory";
-
-static void* get_end_of_memory_from_fdt(void)
-{
-  const void *fdt;
-  const void *val;
-  int node;
-  int parent;
-  int ac;
-  int sc;
-  int len;
-  uintptr_t start;
-  uintptr_t size;
-
-  fdt = bsp_fdt_get();
-
-  node = fdt_path_offset_namelen(
-    fdt,
-    memory_path,
-    (int) sizeof(memory_path) - 1
-  );
-
-  if (node < 0) {
-    return NULL;
-  }
-
-  parent = fdt_parent_offset(fdt, node);
-  if (parent < 0) {
-    return NULL;
-  }
-
-  ac = fdt_address_cells(fdt, parent);
-  if (ac != 1 && ac != 2) {
-    return NULL;
-  }
-
-  sc = fdt_size_cells(fdt, parent);
-  if (sc != 1 && sc != 2) {
-    return NULL;
-  }
-
-  if (sc > ac) {
-    return NULL;
-  }
-
-  val = fdt_getprop(fdt, node, "reg", &len);
-  if (len < sc + ac) {
-    return NULL;
-  }
-
-  if (ac == 1) {
-    start = fdt32_ld(&((fdt32_t *)val)[0]);
-    size = fdt32_ld(&((fdt32_t *)val)[1]);
-  }
-
-  if (ac == 2) {
-    start = fdt64_ld(&((fdt64_t *)val)[0]);
-    if (sc == 1) {
-      size = fdt32_ld(&((fdt32_t *)(val+8))[0]);
-    } else {
-      size = fdt64_ld(&((fdt64_t *)val)[1]);
-    }
-  }
-
-  return (void*) (start + size);
-}
-
 static void bsp_memory_initialize( void )
 {
   void *end;
+  const void *fdt = bsp_fdt_get();
 
   /* get end of memory from the "/memory" node in the fdt */
-  end = get_end_of_memory_from_fdt();
+  end = riscv_fdt_get_end_of_memory(fdt);
   if (end == NULL) {
     /* fall back to linker symbol if "/memory" node not found or invalid */
     end = RamEnd;

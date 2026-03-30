@@ -60,7 +60,8 @@ static void stm32f4_usart_interrupt(void *arg)
 
   while ((usart->sr & STM32F4_USART_SR_RXNE) == STM32F4_USART_SR_RXNE)
   {
-    char data = STM32F4_USART_DR_GET(usart->dr);
+    /* Mask to 8 bits to preserve existing behavior */
+    char data = STM32F4_USART_DR_GET(usart->dr) & 0xFF;
     rtems_termios_enqueue_raw_characters(tty, &data, sizeof(data));
   }
 }
@@ -114,7 +115,7 @@ static uint32_t usart_get_baud(const console_tbl *ct)
  *
  * 2. div_fraction = pclk / (baud - a * div_mantissa)
  */
-static uint32_t usart_get_bbr(
+static uint32_t usart_get_brr(
   volatile stm32f4_usart *usart,
   uint32_t pclk,
   uint32_t baud
@@ -122,7 +123,7 @@ static uint32_t usart_get_bbr(
 {
   uint32_t a = 8 * (2 - ((usart->cr1 & STM32F4_USART_CR1_OVER8) != 0));
   uint32_t div_mantissa_low = pclk / (a * baud);
-  uint32_t div_fraction_low = pclk / (baud - a * div_mantissa_low);
+  uint32_t div_fraction_low = (pclk - baud * a * div_mantissa_low) / baud;
   uint32_t div_mantissa_high;
   uint32_t div_fraction_high;
   uint32_t high_err;
@@ -131,10 +132,10 @@ static uint32_t usart_get_bbr(
   uint32_t div_fraction;
 
   if (div_fraction_low < a - 1) {
-    div_mantissa_high = div_fraction_low;
+    div_mantissa_high = div_mantissa_low;
     div_fraction_high = div_fraction_low + 1;
   } else {
-    div_mantissa_high = div_fraction_low + 1;
+    div_mantissa_high = div_mantissa_low + 1;
     div_fraction_high = 0;
   }
 
@@ -149,8 +150,8 @@ static uint32_t usart_get_bbr(
     div_fraction = div_fraction_high;
   }
 
-  return STM32F4_USART_BBR_DIV_MANTISSA(div_mantissa)
-    | STM32F4_USART_BBR_DIV_FRACTION(div_fraction);
+  return STM32F4_USART_BRR_DIV_MANTISSA(div_mantissa)
+    | STM32F4_USART_BRR_DIV_FRACTION(div_fraction);
 }
 
 static void usart_initialize(int minor)
@@ -166,7 +167,7 @@ static void usart_initialize(int minor)
   usart->cr1 = 0;
   usart->cr2 = 0;
   usart->cr3 = 0;
-  usart->bbr = usart_get_bbr(usart, pclk, baud);
+  usart->brr = usart_get_brr(usart, pclk, baud);
   usart->cr1 = STM32F4_USART_CR1_UE // UART enable
 #ifdef BSP_CONSOLE_USE_INTERRUPTS
     | STM32F4_USART_CR1_RXNEIE // RX interrupt
@@ -224,7 +225,7 @@ static int usart_read_polled(int minor)
   volatile stm32f4_usart *usart = usart_get_regs(ct);
 
   if ((usart->sr & STM32F4_USART_SR_RXNE) != 0) {
-    return STM32F4_USART_DR_GET(usart->dr);
+    return STM32F4_USART_DR_GET(usart->dr) & 0xFF;
   } else {
     return -1;
   }
@@ -269,7 +270,7 @@ static int usart_set_attributes(int minor, const struct termios *term)
   uint32_t baud = term->c_ispeed;
 
   ct->ulClock = baud;
-  usart->bbr = usart_get_bbr(usart, pclk, baud);
+  usart->brr = usart_get_brr(usart, pclk, baud);
   return 0;
 }
 
